@@ -1,0 +1,2 @@
+# Tyga-Finacials
+Gamma Signals
