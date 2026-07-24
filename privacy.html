@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Tyga Financials</title>
+<style>
+  :root{
+    --bg:#0A0F1A; --panel:#121B2C; --line:#223049; --text:#E8EDF5; --muted:#9AA8C2; --gold:#D9B876;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; line-height:1.65;}
+  .wrap{max-width:680px; margin:0 auto; padding:32px 20px 60px;}
+  .brand{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .brand img{width:34px; height:34px; border-radius:9px;}
+  .brand span{font-weight:800; font-size:18px;}
+  .updated{color:var(--muted); font-size:12.5px; margin-bottom:28px;}
+  h1{font-size:24px; margin:18px 0 4px;}
+  h2{font-size:16px; color:var(--gold); margin:32px 0 8px; letter-spacing:0.2px;}
+  p, li{font-size:14.5px; color:var(--text);}
+  ul{padding-left:20px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin:14px 0;}
+  .muted{color:var(--muted);}
+  a{color:var(--gold);}
+  .disclaimer{background:rgba(217,184,118,0.08); border:1px solid rgba(217,184,118,0.3); border-radius:12px; padding:16px 18px; margin-top:32px; font-size:13.5px; color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><img src="./icon-192.png" alt=""><span>Tyga Financials</span></div>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: July 2026</p>
+
+  <p>This policy explains what information Tyga Financials collects, why, and how it's handled. Tyga Financials is a trading-signal application for Forex, metals/crypto, and Deriv synthetic indices.</p>
+
+  <h2>Information We Collect</h2>
+  <div class="card">
+    <ul>
+      <li><b>Account credentials</b> — a username and password, used to log you in. Passwords are handled entirely by Firebase Authentication (a Google service); we never see or store your actual password ourselves, only a secure login token.</li>
+      <li><b>WhatsApp number and API key</b> (optional) — only if you turn on WhatsApp alerts. Used solely to send you signal notifications via the CallMeBot service.</li>
+      <li><b>Trade journal entries</b> — symbol, result (win/loss/break-even), and profit/loss figures you log yourself, plus signals the app auto-logs when a trade closes.</li>
+      <li><b>Account size and risk percentage</b> — used only to calculate the dollar risk shown on each signal. This is not verified against any real broker account.</li>
+      <li><b>Basic usage data</b> — when your account was created and when you last logged in, visible to the app's admin for user management.</li>
+    </ul>
+  </div>
+
+  <h2>What We Don't Collect</h2>
+  <div class="card">
+    <p>We do not collect your real name, email address, payment details, or access to any actual broker or trading account. Tyga Financials never places trades — it only displays signals for you to act on manually.</p>
+  </div>
+
+  <h2>How Your Data Is Stored</h2>
+  <div class="card">
+    <p>Data is stored using Firebase (a Google Cloud service). Your journal, positions, and WhatsApp settings are stored privately and are only accessible from your own logged-in account.</p>
+  </div>
+
+  <h2>Third-Party Services</h2>
+  <div class="card">
+    <ul>
+      <li><b>Firebase (Google)</b> — authentication and data storage.</li>
+      <li><b>Deriv</b> — public, anonymous market-price data. No personal information is sent to Deriv.</li>
+      <li><b>ForexFactory</b> — public economic calendar data. No personal information is sent.</li>
+      <li><b>CallMeBot</b> — only if you enable WhatsApp alerts, your phone number and the alert message text are sent to this third-party service to deliver the notification.</li>
+      <li><b>TradingView</b> — if you open the embedded chart, TradingView's own widget loads directly in your browser, subject to <a href="https://www.tradingview.com/privacy-policy/" target="_blank">TradingView's privacy policy</a>.</li>
+    </ul>
+  </div>
+
+  <h2>Data Deletion</h2>
+  <div class="card">
+    <p>You can clear your own trade journal at any time from within the app. To request full account deletion, contact the app admin directly, or reach out via the contact method below.</p>
+  </div>
+
+  <h2>Children's Privacy</h2>
+  <div class="card">
+    <p>Tyga Financials is not directed at, and should not be used by, anyone under the age of 18.</p>
+  </div>
+
+  <h2>Changes to This Policy</h2>
+  <div class="card">
+    <p>This policy may be updated as the app changes. Continued use of the app after changes means you accept the updated policy.</p>
+  </div>
+
+  <h2>Contact</h2>
+  <div class="card">
+    <p class="muted">Questions about this policy or your data can be directed to the app's admin.</p>
+  </div>
+
+  <div class="disclaimer">
+    <b>Disclaimer:</b> Tyga Financials provides automated technical-analysis signals for informational purposes only. Nothing in this app constitutes financial advice. Trading carries risk, including the risk of loss. Always do your own research and only risk what you can afford to lose.
+  </div>
+</div>
+</body>
+</html>
