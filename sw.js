@@ -1,9 +1,9 @@
 // Tyga Financials — service worker.
-// Injects the Telegram and Deriv fix modules into the app shell without rewriting
+// Injects presentation and integration modules into the app shell without rewriting
 // the large index.html file. Live APIs/WebSockets continue to use the network.
-const CACHE = 'tyga-shell-v3';
-const SHELL_FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './telegram.js', './deriv-fix.js'];
-const INJECT_TAGS = '<script src="./deriv-fix.js"></script><script src="./telegram.js" defer></script>';
+const CACHE = 'tyga-shell-v4';
+const SHELL_FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './telegram.js', './deriv-fix.js', './desktop-ui.js'];
+const INJECT_TAGS = '<script src="./deriv-fix.js"></script><script src="./telegram.js" defer></script><script src="./desktop-ui.js" defer></script>';
 
 async function shellResponse(request) {
   const upstream = await fetch(request, { cache: 'no-store' });
