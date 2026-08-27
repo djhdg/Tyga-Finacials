@@ -1,4 +1,4 @@
-/* Tyga Financials — desktop navigation mirror with reliable collapse/expand control. */
+/* Tyga Financials — desktop navigation with real view switching and collapse/expand. */
 (() => {
   'use strict';
   if (window.innerWidth < 900 || document.getElementById('tygaDesktopNav')) return;
@@ -7,8 +7,43 @@
   const nav=document.createElement('aside');nav.id='tygaDesktopNav';nav.setAttribute('aria-label','Tyga Financials navigation');
   const toggle=document.createElement('button');toggle.className='tdn-toggle';toggle.type='button';toggle.textContent='›';toggle.setAttribute('aria-label','Collapse navigation');toggle.title='Collapse navigation';nav.appendChild(toggle);
   const setCollapsed=v=>{nav.classList.toggle('is-collapsed',v);document.body.classList.toggle('tyga-nav-collapsed',v);toggle.textContent=v?'‹':'›';toggle.setAttribute('aria-label',v?'Expand navigation':'Collapse navigation');toggle.title=v?'Expand navigation':'Collapse navigation';try{localStorage.setItem('tygaDesktopNavCollapsed',v?'1':'0')}catch(e){}};
-  items.forEach(([key,icon,label])=>{const b=document.createElement('button');b.className='tdn-item';b.type='button';b.dataset.section=key;b.innerHTML='<span class="tdn-icon">'+icon+'</span><span class="tdn-label">'+label+'</span>';b.addEventListener('click',()=>activate(key));nav.appendChild(b)});document.body.appendChild(nav);
-  let saved=false;try{saved=localStorage.getItem('tygaDesktopNavCollapsed')==='1'}catch(e){}setCollapsed(saved);toggle.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();setCollapsed(!nav.classList.contains('is-collapsed'))});
-  const patterns={digits:/digits|digit|volatility|tick/i,signals:/signals?|signal|forecast|analysis/i,news:/news|market news/i,journal:/journal|trade journal|history/i,upgrade:/upgrade|auto.?execute|deriv|automation/i,account:/account|profile|settings/i};
-  function activate(key){document.querySelectorAll('#tygaDesktopNav .tdn-item').forEach(x=>x.classList.toggle('active',x.dataset.section===key));const els=[...document.querySelectorAll('section,main > div,[id*="screen"],[id*="view"],[id*="panel"],[id*="page"]')];const matches=els.filter(el=>patterns[key].test((el.id||'')+' '+(el.className||'')+' '+(el.getAttribute('aria-label')||'')+' '+(el.innerText||'').slice(0,300)));const target=matches.find(el=>el.offsetParent!==null)||matches[0];if(target){target.scrollIntoView({behavior:'smooth',block:'start'});return}const trigger=[...document.querySelectorAll('button,a,[role="tab"]')].find(el=>patterns[key].test((el.innerText||'')+' '+(el.getAttribute('aria-label')||'')));if(trigger)trigger.click()}
+
+  // These aliases match the names commonly used by the app's existing mobile view/nav code.
+  const aliases={digits:['digits','digit','analysis','volatility'],signals:['signals','signal','forecast'],news:['news'],journal:['journal','history'],upgrade:['upgrade','automation','deriv'],account:['account','profile','settings']};
+  function norm(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
+  function score(el,key){
+    const hay=norm([el.id,el.getAttribute('data-view'),el.getAttribute('data-section'),el.getAttribute('aria-label'),el.getAttribute('title'),el.innerText].join(' '));
+    const words=aliases[key]; let n=0;
+    words.forEach(w=>{if(hay===w)n+=100;if(hay.includes(' '+w+' '))n+=50;if(hay.includes(w))n+=10});
+    if(el.classList.contains('view'))n+=30;if(el.classList.contains('nav-item'))n+=80;
+    if(key==='signals' && /signal/.test(hay))n+=20;
+    return n;
+  }
+  function activate(key){
+    document.querySelectorAll('#tygaDesktopNav .tdn-item').forEach(x=>x.classList.toggle('active',x.dataset.section===key));
+
+    // 1) Prefer the application's own navigation controls. This is the important part:
+    // clicking the desktop item now invokes the same view-switching handler as mobile.
+    const controls=[...document.querySelectorAll('button:not(#tygaDesktopNav button),a,[role="tab"]')]
+      .filter(el=>el.closest('#tygaDesktopNav')===null && el.offsetParent!==null);
+    const control=controls.map(el=>({el,n:score(el,key)})).sort((a,b)=>b.n-a.n)[0];
+    if(control && control.n>=50){control.el.click();setTimeout(()=>syncActive(key),60);return}
+
+    // 2) If no mobile control is found, switch .view/.active directly.
+    const views=[...document.querySelectorAll('.view,[data-view]')].filter(el=>el.closest('#tygaDesktopNav')===null);
+    const target=views.map(el=>({el,n:score(el,key)})).sort((a,b)=>b.n-a.n)[0];
+    if(target && target.n>0){views.forEach(v=>v.classList.remove('active'));target.el.classList.add('active');target.el.scrollIntoView({behavior:'smooth',block:'start'});syncActive(key);return}
+
+    // 3) Last fallback: scroll to the best matching content section.
+    const sections=[...document.querySelectorAll('main section,body > section,body > main > div,section[id]')].filter(el=>el.closest('#tygaDesktopNav')===null);
+    const section=sections.map(el=>({el,n:score(el,key)})).sort((a,b)=>b.n-a.n)[0];
+    if(section && section.n>0){section.el.scrollIntoView({behavior:'smooth',block:'start'});syncActive(key)}
+  }
+  function syncActive(key){document.querySelectorAll('#tygaDesktopNav .tdn-item').forEach(x=>x.classList.toggle('active',x.dataset.section===key))}
+
+  items.forEach(([key,icon,label])=>{const b=document.createElement('button');b.className='tdn-item';b.type='button';b.dataset.section=key;b.innerHTML='<span class="tdn-icon">'+icon+'</span><span class="tdn-label">'+label+'</span>';b.addEventListener('click',()=>activate(key));nav.appendChild(b)});
+  document.body.appendChild(nav);
+  let saved=false;try{saved=localStorage.getItem('tygaDesktopNavCollapsed')==='1'}catch(e){}setCollapsed(saved);
+  toggle.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();setCollapsed(!nav.classList.contains('is-collapsed'))});
+  const defaultKey='signals';syncActive(defaultKey);
 })();
