@@ -12,6 +12,8 @@ jobs:
         with:
           node-version: 22
       - run: node --check scalping-strategies.js
+      - run: node --check scalping-quality.js
+      - run: node --check scalping-analytics.js
       - run: node --check execution-controls.js
       - run: node --check trading-safety.js
       - run: node --check execution-guard.js
