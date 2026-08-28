@@ -1,0 +1,11 @@
+{
+  "name": "tyga-finacials",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.22.3"
+  },
+  "dependencies": {
+    "@composio/core": "^0.17.0"
+  }
+}
