@@ -13,15 +13,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Make index self-contained and clear stale PWA workers
+      - name: Add v37 startup recovery and clear stale PWA workers
         shell: python
         run: |
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          marker = '<!-- TYGA_RUNTIME_SHELL_V36 -->'
+          marker = '<!-- TYGA_RUNTIME_SHELL_V37 -->'
           if marker not in s:
-              block = '''\n<!-- TYGA_RUNTIME_SHELL_V36 -->\n<script>\n(() => {\n  // A previous service worker can keep an obsolete GitHub Pages shell alive.\n  // Remove it once, clear its caches, then let the page load directly from Pages.\n  const KEY='tyga-runtime-v36-reset';\n  if(!sessionStorage.getItem(KEY)){\n    sessionStorage.setItem(KEY,'1');\n    if('serviceWorker' in navigator){\n      navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))).then(()=>caches?.keys?.().then(ks=>Promise.all(ks.map(k=>caches.delete(k))))).catch(()=>{});\n    }\n  }\n})();\n</script>\n<script src="./state-restore.js?v=36" defer></script>\n<script src="./deriv-config.js?v=36" defer></script>\n<script src="./deriv-fix.js?v=36" defer></script>\n<script src="./deriv-buy-fix.js?v=36" defer></script>\n<script src="./deriv-proposal-execution.js?v=36" defer></script>\n<script src="./running-trades-panel.js?v=36" defer></script>\n<script src="./startup-recovery.js?v=36" defer></script>\n<script src="./telegram.js?v=36" defer></script>\n<script src="./desktop-ui.js?v=36" defer></script>\n<script src="./desktop-nav.js?v=36" defer></script>\n<script src="./desktop-workspace.js?v=36" defer></script>\n<script src="./desktop-loader.js?v=36" defer></script>\n<script src="./desktop-terminal.js?v=36" defer></script>\n<script src="./trading-safety.js?v=36" defer></script>\n<script src="./execution-guard.js?v=36" defer></script>\n<script src="./desktop-left-rail-fix.js?v=36" defer></script>\n<script src="./signal-integrity-v2.js?v=36" defer></script>\n<script src="./trading-chart.js?v=36" defer></script>\n<script src="./scalping-strategies.js?v=36" defer></script>\n<script src="./scalping-hotfix.js?v=36" defer></script>\n<script src="./signal-quality.js?v=36" defer></script>\n<script src="./scalping-quality.js?v=36" defer></script>\n<script src="./scalping-analytics.js?v=36" defer></script>\n<script src="./scalping-execution-quality.js?v=36" defer></script>\n<script src="./scalping-robustness.js?v=36" defer></script>\n<script src="./execution-controls.js?v=36" defer></script>\n'''
+              block = '''
+<!-- TYGA_RUNTIME_SHELL_V37 -->
+<script>
+(() => {
+  const KEY='tyga-runtime-v37-reset';
+  if(!sessionStorage.getItem(KEY)){
+    sessionStorage.setItem(KEY,'1');
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))).then(()=>caches?.keys?.().then(ks=>Promise.all(ks.map(k=>caches.delete(k))))).catch(()=>{});
+    }
+  }
+})();
+</script>
+<script src="./startup-recovery.js?v=37" defer></script>
+'''
               s = s.replace('</head>', block + '</head>', 1)
               p.write_text(s, encoding='utf-8')
       - name: Commit repaired shell
@@ -30,5 +44,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: make Pages shell self-contained and recover stale PWA'
+          git commit -m 'fix: v37 startup recovery for Firebase sync hang'
           git push
