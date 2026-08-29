@@ -232,33 +232,49 @@
   }
 })();
 </script>
-<script src="./state-restore.js?v=36" defer></script>
-<script src="./deriv-config.js?v=36" defer></script>
-<script src="./deriv-fix.js?v=36" defer></script>
-<script src="./deriv-buy-fix.js?v=36" defer></script>
-<script src="./deriv-proposal-execution.js?v=36" defer></script>
-<script src="./running-trades-panel.js?v=36" defer></script>
-<script src="./startup-recovery.js?v=36" defer></script>
-<script src="./telegram.js?v=36" defer></script>
-<script src="./desktop-ui.js?v=36" defer></script>
-<script src="./desktop-nav.js?v=36" defer></script>
-<script src="./desktop-workspace.js?v=36" defer></script>
-<script src="./desktop-loader.js?v=36" defer></script>
-<script src="./desktop-terminal.js?v=36" defer></script>
-<script src="./trading-safety.js?v=36" defer></script>
-<script src="./execution-guard.js?v=36" defer></script>
-<script src="./desktop-left-rail-fix.js?v=36" defer></script>
-<script src="./signal-integrity-v2.js?v=36" defer></script>
-<script src="./trading-chart.js?v=36" defer></script>
-<script src="./scalping-strategies.js?v=36" defer></script>
-<script src="./scalping-hotfix.js?v=36" defer></script>
-<script src="./signal-quality.js?v=36" defer></script>
-<script src="./scalping-quality.js?v=36" defer></script>
-<script src="./scalping-analytics.js?v=36" defer></script>
-<script src="./scalping-execution-quality.js?v=36" defer></script>
-<script src="./scalping-robustness.js?v=36" defer></script>
-<script src="./execution-controls.js?v=36" defer></script>
-</head>
+<script src="./state-restore.js?v=38" defer></script>
+<script src="./deriv-config.js?v=38" defer></script>
+<script src="./deriv-fix.js?v=38" defer></script>
+<script src="./deriv-buy-fix.js?v=38" defer></script>
+<script src="./deriv-proposal-execution.js?v=38" defer></script>
+<script src="./running-trades-panel.js?v=38" defer></script>
+<script src="./startup-recovery.js?v=38" defer></script>
+<script src="./telegram.js?v=38" defer></script>
+<script src="./desktop-ui.js?v=38" defer></script>
+<script src="./desktop-nav.js?v=38" defer></script>
+<script src="./desktop-workspace.js?v=38" defer></script>
+<script src="./desktop-loader.js?v=38" defer></script>
+<script src="./desktop-terminal.js?v=38" defer></script>
+<script src="./trading-safety.js?v=38" defer></script>
+<script src="./execution-guard.js?v=38" defer></script>
+<script src="./desktop-left-rail-fix.js?v=38" defer></script>
+<script src="./signal-integrity-v2.js?v=38" defer></script>
+<script src="./trading-chart.js?v=38" defer></script>
+<script src="./scalping-strategies.js?v=38" defer></script>
+<script src="./scalping-hotfix.js?v=38" defer></script>
+<script src="./signal-quality.js?v=38" defer></script>
+<script src="./scalping-quality.js?v=38" defer></script>
+<script src="./scalping-analytics.js?v=38" defer></script>
+<script src="./scalping-execution-quality.js?v=38" defer></script>
+<script src="./scalping-robustness.js?v=38" defer></script>
+<script src="./execution-controls.js?v=38" defer></script>
+<meta name="TYGA_STARTUP_EMERGENCY_V38" content="1"><script id="tygaEmergencyBoot">
+(()=>{
+  const run=()=>setTimeout(()=>{
+    try{
+      const status=document.getElementById('authSyncStatus');
+      const body=document.getElementById('authBody');
+      if(status && body && body.children.length===0){
+        status.textContent='Device sync unavailable — continuing on this device';
+        status.style.color='var(--wait)';
+        if(typeof authView!=='undefined'){ authView='chooser'; }
+        if(typeof renderAuth==='function') renderAuth();
+      }
+    }catch(_){}
+  },4000);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true}); else run();
+})();
+</script></head>
 <body>
 
 <!-- ================= AUTH ================= -->
@@ -3259,7 +3275,26 @@ async function testSync(){
   }
 }
 
-loadFirebase(()=>{ testSync(); initAuth(); });
+loadFirebase(()=>{
+  try{ testSync(); }catch(e){}
+  try{ initAuth(); }catch(e){ console.warn('Tyga auth boot error', e); }
+});
+// Never leave the user on “Checking device sync…” if Firebase/network startup is unavailable.
+setTimeout(()=>{
+  try{
+    const status=document.getElementById('authSyncStatus');
+    const body=document.getElementById('authBody');
+    if(typeof authView !== 'undefined' && authView === 'loading'){
+      authView='chooser';
+      if(typeof renderAuth === 'function') renderAuth();
+    }
+    if(status && (!body || body.children.length===0)){
+      status.textContent='Device sync unavailable — continuing on this device';
+      status.style.color='var(--wait)';
+      if(typeof authView !== 'undefined'){ authView='chooser'; if(typeof renderAuth === 'function') renderAuth(); }
+    }
+  }catch(e){ console.warn('Tyga startup recovery', e); }
+}, 3000);
 </script>
 </body>
 </html>
