@@ -17,6 +17,7 @@ jobs:
       - run: node --check scalping-execution-quality.js
       - run: node --check scalping-robustness.js
       - run: node --check deriv-buy-fix.js
+      - run: node --check deriv-proposal-execution.js
       - run: node --check execution-controls.js
       - run: node --check trading-safety.js
       - run: node --check execution-guard.js
