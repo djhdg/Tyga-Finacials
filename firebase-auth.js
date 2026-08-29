@@ -1,10 +1,11 @@
-/* Tyga Financials Firebase auth enhancements.
- * Loaded by desktop-loader.js so the existing index.html can keep its current
- * auth implementation while adding Google Sign-In and Firebase user profiles.
- */
+/* Tyga Financials Firebase auth enhancements. */
 (() => {
   const waitForFirebase = (done, tries = 0) => {
-    if (window.fbReady && window.firebase && window.db) return done();
+    try {
+      if (window.firebase && firebase.apps && firebase.apps.length && firebase.auth && firebase.firestore) {
+        return done();
+      }
+    } catch (_) {}
     if (tries >= 80) return;
     setTimeout(() => waitForFirebase(done, tries + 1), 250);
   };
@@ -33,11 +34,10 @@
     button.id = 'btnGoogleSignIn';
     button.className = 'btn-ghost';
     button.type = 'button';
-    button.innerHTML = 'Continue with Google';
+    button.textContent = 'Continue with Google';
     button.onclick = signInWithGoogle;
 
-    const loginButton = document.getElementById('btnLogin');
-    loginButton.insertAdjacentElement('afterend', button);
+    document.getElementById('btnLogin').insertAdjacentElement('afterend', button);
   };
 
   const showAuthMessage = (message) => {
@@ -46,7 +46,8 @@
   };
 
   async function saveGoogleProfile(user) {
-    const ref = window.db.collection('users').doc(user.uid).collection('private').doc('profile');
+    const db = firebase.firestore();
+    const ref = db.collection('users').doc(user.uid).collection('private').doc('profile');
     const existing = await ref.get();
     const current = existing.exists ? existing.data() : {};
     const profile = {
@@ -64,7 +65,7 @@
   }
 
   async function signInWithGoogle() {
-    if (!window.fbReady || !window.firebase) {
+    if (!window.firebase) {
       showAuthMessage('Firebase is not ready yet — try again in a moment.');
       return;
     }
@@ -107,12 +108,9 @@
   window.signInWithGoogle = signInWithGoogle;
 
   waitForFirebase(() => {
-    // renderAuth() replaces #authBody, so observe it and re-add the Google button
-    // whenever the chooser/login view is rendered.
     const body = getAuthBody();
     if (!body) return;
-
-    const observer = new MutationObserver(() => ensureGoogleButton());
+    const observer = new MutationObserver(ensureGoogleButton);
     observer.observe(body, { childList: true, subtree: true });
     ensureGoogleButton();
   });
