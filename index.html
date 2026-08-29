@@ -217,6 +217,47 @@
   .toast{position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--panel); border:1px solid var(--gold); color:var(--text); padding:10px 18px; border-radius:10px; font-size:12.5px; z-index:100; opacity:0; transition:opacity .25s; pointer-events:none;}
   .toast.show{opacity:1;}
 </style>
+
+<!-- TYGA_RUNTIME_SHELL_V36 -->
+<script>
+(() => {
+  // A previous service worker can keep an obsolete GitHub Pages shell alive.
+  // Remove it once, clear its caches, then let the page load directly from Pages.
+  const KEY='tyga-runtime-v36-reset';
+  if(!sessionStorage.getItem(KEY)){
+    sessionStorage.setItem(KEY,'1');
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))).then(()=>caches?.keys?.().then(ks=>Promise.all(ks.map(k=>caches.delete(k))))).catch(()=>{});
+    }
+  }
+})();
+</script>
+<script src="./state-restore.js?v=36" defer></script>
+<script src="./deriv-config.js?v=36" defer></script>
+<script src="./deriv-fix.js?v=36" defer></script>
+<script src="./deriv-buy-fix.js?v=36" defer></script>
+<script src="./deriv-proposal-execution.js?v=36" defer></script>
+<script src="./running-trades-panel.js?v=36" defer></script>
+<script src="./startup-recovery.js?v=36" defer></script>
+<script src="./telegram.js?v=36" defer></script>
+<script src="./desktop-ui.js?v=36" defer></script>
+<script src="./desktop-nav.js?v=36" defer></script>
+<script src="./desktop-workspace.js?v=36" defer></script>
+<script src="./desktop-loader.js?v=36" defer></script>
+<script src="./desktop-terminal.js?v=36" defer></script>
+<script src="./trading-safety.js?v=36" defer></script>
+<script src="./execution-guard.js?v=36" defer></script>
+<script src="./desktop-left-rail-fix.js?v=36" defer></script>
+<script src="./signal-integrity-v2.js?v=36" defer></script>
+<script src="./trading-chart.js?v=36" defer></script>
+<script src="./scalping-strategies.js?v=36" defer></script>
+<script src="./scalping-hotfix.js?v=36" defer></script>
+<script src="./signal-quality.js?v=36" defer></script>
+<script src="./scalping-quality.js?v=36" defer></script>
+<script src="./scalping-analytics.js?v=36" defer></script>
+<script src="./scalping-execution-quality.js?v=36" defer></script>
+<script src="./scalping-robustness.js?v=36" defer></script>
+<script src="./execution-controls.js?v=36" defer></script>
 </head>
 <body>
 
