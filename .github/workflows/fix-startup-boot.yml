@@ -15,34 +15,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Patch Firebase startup so auth never waits forever
+      - name: Patch startup so Firebase can never block the UI
         shell: python
         run: |
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          old = "loadFirebase(()=>{ testSync(); initAuth(); });"
-          new = r'''let __tygaAuthBooted = false;
-function __tygaBootAuth(){
-  if(__tygaAuthBooted) return;
-  __tygaAuthBooted = true;
-  try{ testSync(); }catch(e){ console.warn('Tyga sync check skipped', e); }
-  try{ initAuth(); }catch(e){
-    console.error('Tyga auth boot failed', e);
-    __tygaAuthBooted = false;
-    setTimeout(__tygaBootAuth, 500);
-  }
-}
-// Firebase is optional for startup. Never keep the entire application behind a remote SDK.
-loadFirebase(__tygaBootAuth);
-setTimeout(__tygaBootAuth, 2500);'''
+
+          # Replace the blocking Firebase-only startup call with an immediate local auth boot plus timeout fallback.
+          old = 'loadFirebase(()=>{ testSync(); initAuth(); });'
+          new = '''loadFirebase(()=>{\n  try{ testSync(); }catch(e){}\n  try{ initAuth(); }catch(e){ console.warn('Tyga auth boot error', e); }\n});\n// Never leave the user on “Checking device sync…” if Firebase/network startup is unavailable.\nsetTimeout(()=>{\n  try{\n    const status=document.getElementById('authSyncStatus');\n    const body=document.getElementById('authBody');\n    if(typeof authView !== 'undefined' && authView === 'loading'){\n      authView='chooser';\n      if(typeof renderAuth === 'function') renderAuth();\n    }\n    if(status && (!body || body.children.length===0)){\n      status.textContent='Device sync unavailable — continuing on this device';\n      status.style.color='var(--wait)';\n      if(typeof authView !== 'undefined'){ authView='chooser'; if(typeof renderAuth === 'function') renderAuth(); }\n    }\n  }catch(e){ console.warn('Tyga startup recovery', e); }\n}, 3000);'''
           if old in s:
               s = s.replace(old, new, 1)
-          # Bust direct browser caches for the injected scripts.
-          s = s.replace('?v=36', '?v=37')
-          marker = 'TYGA_STARTUP_BOOT_V37'
+
+          # Also make the direct page shell self-recovering even when an old service worker is serving index.html.
+          marker = 'TYGA_STARTUP_EMERGENCY_V38'
+          emergency = '''<script id="tygaEmergencyBoot">\n(()=>{\n  const run=()=>setTimeout(()=>{\n    try{\n      const status=document.getElementById('authSyncStatus');\n      const body=document.getElementById('authBody');\n      if(status && body && body.children.length===0){\n        status.textContent='Device sync unavailable — continuing on this device';\n        status.style.color='var(--wait)';\n        if(typeof authView!=='undefined'){ authView='chooser'; }\n        if(typeof renderAuth==='function') renderAuth();\n      }\n    }catch(_){}\n  },4000);\n  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true}); else run();\n})();\n</script>'''
           if marker not in s:
-              s = s.replace('</head>', f'<meta name="{marker}" content="1"></head>', 1)
+              s = s.replace('</head>', f'<meta name="{marker}" content="1">{emergency}</head>', 1)
+
+          # Bust all directly loaded runtime scripts.
+          s = s.replace('?v=36', '?v=38')
           p.write_text(s, encoding='utf-8')
       - name: Commit patched index
         shell: bash
@@ -54,5 +47,5 @@ setTimeout(__tygaBootAuth, 2500);'''
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "fix: boot auth without waiting for Firebase"
+          git commit -m "fix: prevent Firebase sync from blocking app startup"
           git push
