@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Per-user application data. The web client stores these documents under
+    // users/{uid}/private/* and must only be accessible by that Firebase user.
+    match /users/{userId}/private/{documentId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Existing app-wide metadata used by the current username/passcode flow.
+    // This remains authenticated-only for compatibility with the current app.
+    // Admin-only authorization should be moved server-side before exposing
+    // sensitive administrative metadata to untrusted clients.
+    match /tyga_data/{documentId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
